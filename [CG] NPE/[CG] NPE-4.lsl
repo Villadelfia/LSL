@@ -88,7 +88,7 @@ doTp(key agent)
     for(; j >= 0; --j)
     {
         list details = llGetObjectDetails(llList2Key(attachments, j), [OBJECT_TEMP_ATTACHED, OBJECT_CREATOR, OBJECT_NAME]);
-        if((llList2Integer(details, 0) == 1 && llList2Key(details, 1) == developerUuid && contains(llList2String(details, 2), "HUD")))
+        if((llList2Integer(details, 0) == 1 && llList2Key(details, 1) == developerUuid && contains(llList2String(details, 2), "TITLER")))
         {
             fancy = FALSE;
         }

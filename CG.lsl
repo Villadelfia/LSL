@@ -51,6 +51,9 @@ integer CLIENT_HANDLE_XP_TICK = 21; // llMessageLinked(LINK_THIS, CLIENT_HANDLE_
 integer CLIENT_SET_COMBAT_DATA = 22; // llMessageLinked(LINK_THIS, CLIENT_SET_COMBAT_DATA, "init|hp", (key)((string)value));
 integer CLIENT_LEAVE_COMBAT = 23; // llMessageLinked(LINK_THIS, CLIENT_LEAVE_COMBAT, "", NULL_KEY);
 
+integer CLIENT_BOOK_STATUS = 24; // llMessageLinked(LINK_THIS, CLIENT_BOOK_STATUS, (string)slot or -1, NULL_KEY);
+integer CLIENT_BOOK_ATTACHED = 25; // llMessageLinked(LINK_THIS, CLIENT_BOOK_ATTACHED, "", NULL_KEY);
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SERVER API
@@ -77,9 +80,10 @@ string arrowTexture = "ec1e58e1-babd-ff44-a0ba-c964bacff3de";
 string characterMenuTexture = "564e2d0d-7e65-3b10-ed2c-62b6f79dfc4f";
 string characterSelectTexture = "3f6bb0e1-0395-9eb0-c907-903a395ff8a4";
 string characterStatusTexture = "457ed1e3-3acb-8e29-59ac-a75fd07cb907";
-string rpToolsTexture = "3f8fc7a9-567f-8d21-6b3e-98ec5aec2618";
+string rpToolsTexture = "1af73ad2-3797-cc44-ae45-4f577a26577f";
 string rpToolsCombatTexture = "ed2ef765-6630-87ac-c893-93f4084af9cf";
 string attachTarget = NULL_KEY;
+integer BOOK_VERSION = 1;
 list hudPositions = [<0.00000, 0.00000, -0.13476>, <0.00000, 0.00000, -0.05731>, <0.00000, 0.00000, -0.00335>, <0.00000, 0.00000, 0.22959>];
 
 
@@ -90,7 +94,13 @@ list hudPositions = [<0.00000, 0.00000, -0.13476>, <0.00000, 0.00000, -0.05731>,
 // integer CG_IPC_CHANNEL = X;
 // integer CG_PIN = X;
 // key developerUuid = "X";
-
+// integer TELEPORT_CHANNEL = X;
+// integer mailboxChannel = X;
+// string apexApiKey = "X";
+// string apexApiSecret = "X";
+// string DISCORD_WEBHOOK = "X";
+// string DISCORD_STAFF_WEBHOOK = "X";
+// string DISCORD_PRIVATE_WEBHOOK = "X";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEVELOPMENT

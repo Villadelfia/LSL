@@ -186,6 +186,10 @@ default
         {
             llMessageLinked(LINK_THIS, SERVER_REZ_CLUE, "", (key)agentKey);
         }
+        else if(mode == "give-spellbook")
+        {
+            llGiveInventory((key)agentKey, "[CG] SPELLBOOK");
+        }
         else if(mode == "webhook")
         {
             string json = llList2Json(JSON_OBJECT, ["text", strreplace(getValueFromKey(dict, "message"), "###", "\n"), "username", getValueFromKey(dict, "name")]);

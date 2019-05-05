@@ -275,13 +275,30 @@ state running
             }
             else if(mode == "trusted-say")
             {
-                trustedSay(getValueFromKey(dict, "object-name"), getValueFromKey(dict, "message"));
+                trustedSay(getValueFromKey(dict, "object-name"), strreplace(getValueFromKey(dict, "message"), "###", "\n"));
             }
             else if(mode == "xp-tick")
             {
                 string mult = getValueFromKey(dict, "xp-mult");
                 string xpData = getValueFromKey(dict, "xp-values");
                 llMessageLinked(LINK_THIS, CLIENT_HANDLE_XP_TICK, xpData, (key)mult);
+            }
+            else if(mode == "book-ready")
+            {
+                llMessageLinked(LINK_THIS, CLIENT_BOOK_STATUS, getValueFromKey(dict, "slot"), NULL_KEY);
+            }
+            else if(mode == "book-not-ready")
+            {
+                llMessageLinked(LINK_THIS, CLIENT_BOOK_STATUS, "-1", NULL_KEY);
+            }
+            else if(mode == "book-attached")
+            {
+                string ver = getValueFromKey(dict, "version");
+                if((integer)ver != BOOK_VERSION)
+                {
+                    llRegionSayTo(llGetOwner(), CG_IPC_CHANNEL, "target=client\nmode=detach-outdated\nagent-key=" + (string)llGetOwner());
+                }
+                llMessageLinked(LINK_THIS, CLIENT_BOOK_ATTACHED, "", NULL_KEY);
             }
         }
     }

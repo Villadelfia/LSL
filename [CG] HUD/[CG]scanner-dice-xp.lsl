@@ -220,7 +220,7 @@ default
                         llSay(CG_IPC_CHANNEL, "target=client\nmode=trusted-say\nobject-name=Crystalgate Dice\nmessage=" + message);
                     }
                 }
-                llSay(CG_IPC_CHANNEL, "target=server\nmode=webhook\nname=Crystalgate Dice\nmessage=" + message);
+                llRegionSay(CG_IPC_CHANNEL, "target=server\nmode=webhook\nname=Crystalgate Dice\nmessage=" + message);
             }
         }
     }

@@ -25,8 +25,8 @@ integer characterLoaded = 0;
 integer level = 0;
 string name;
 string status = "OOC";
-integer confirmAdmin = FALSE;
 string mode = "";
+integer bookAvailable = FALSE;
 list results = [];
 integer init = 0;
 integer hp = 8;
@@ -86,7 +86,6 @@ default
                 {
                     llMessageLinked(LINK_THIS, CLIENT_LEAVE_COMBAT, "", NULL_KEY);
                 }
-                confirmAdmin = FALSE;
                 hudState = str1;
                 if(hudState == "tools")
                 {
@@ -107,15 +106,19 @@ default
         }
         else if(api_id == CLIENT_CHARACTER_LOADED || api_id == CLIENT_CHARACTER_CHANGED)
         {
+            bookAvailable = FALSE;
             list dict = llParseString2List(str1, ["\n"], []);
             characterLoaded = (integer)getValueFromKey(dict, "slot");
             level = (integer)getValueFromKey(dict, "level");
             name = getValueFromKey(dict, "name");
             specialty = getValueFromKey(dict, "atk");
+            llRegionSayTo(llGetOwner(), CG_IPC_CHANNEL, "target=client\nmode=book-load-character\nagent-key=" + (string)llGetOwner() + "\nslot=" + (string)characterLoaded + "\nname=" + name);
         }
         else if(api_id == CLIENT_CHARACTER_UNLOADED)
         {
             characterLoaded = 0;
+            bookAvailable = FALSE;
+            llRegionSayTo(llGetOwner(), CG_IPC_CHANNEL, "target=client\nmode=book-unload-character\nagent-key=" + (string)llGetOwner());
         }
         else if(api_id == CLIENT_STATUS_CHANGED)
         {
@@ -125,6 +128,24 @@ default
                 list params = llParseString2List((string)str2, [";"], []);
                 init = (integer)llList2String(params, 0);
                 hp = (integer)llList2String(params, 1);
+            }
+        }
+        else if(api_id == CLIENT_BOOK_ATTACHED)
+        {
+            if(characterLoaded != 0)
+            {
+                llRegionSayTo(llGetOwner(), CG_IPC_CHANNEL, "target=client\nmode=book-load-character\nagent-key=" + (string)llGetOwner() + "\nslot=" + (string)characterLoaded + "\nname=" + name);
+            }
+        }
+        else if(api_id == CLIENT_BOOK_STATUS)
+        {
+            if(str1 == "-1" || str1 != (string)characterLoaded)
+            {
+                bookAvailable = FALSE;
+            }
+            else
+            {
+                bookAvailable = TRUE;
             }
         }
 
@@ -184,7 +205,6 @@ default
         {
             integer button = (integer)str1;
             if(button > 5) return;
-            if(button != 5 || hudState != "tools") confirmAdmin = FALSE;
 
             if(hudState == "tools")
             {
@@ -219,24 +239,21 @@ default
                 }
                 else if(button == 4)
                 {
-                    llOwnerSay("Fetching you a copy of the rules...");
-                    llRegionSay(CG_IPC_CHANNEL, "target=server\nmode=give-rules\nagent-key=" + (string)llGetOwner());
-                    llMessageLinked(LINK_THIS, CLIENT_CLOSE_MENUS, "", NULL_KEY);
-                }
-                else if(button == 5)
-                {
-                    if(confirmAdmin)
+                    if(bookAvailable == FALSE)
                     {
-                        llOwnerSay("Paging admins...");
-                        llRegionSay(CG_IPC_CHANNEL, "target=server\nmode=page-staff\nagent-key=" + (string)llGetOwner());
-                        confirmAdmin = FALSE;
-                        llMessageLinked(LINK_THIS, CLIENT_CLOSE_MENUS, "", NULL_KEY);
+                        mode = "-";
+                        llDialog(llGetOwner(), "You do not have a spell book equipped, or it isn't loaded yet. To get a spell book, visit the eldritch library and have a look around to find one.", ["OK"], channel);
                     }
                     else
                     {
-                        confirmAdmin = TRUE;
-                        llOwnerSay("Are you sure you need an admin? Click the button again to page the admins.");
+                        llRegionSayTo(llGetOwner(), CG_IPC_CHANNEL, "target=client\nmode=book-menu\nagent-key=" + (string)llGetOwner());
+                        llMessageLinked(LINK_THIS, CLIENT_CLOSE_MENUS, "", NULL_KEY);
                     }
+                }
+                else if(button == 5)
+                {
+                    mode = "gethelp";
+                    llDialog(llGetOwner(), "What do you need help with? Do you wish to get a copy of the sim rules/hud instructions, or call an admin?", ["GET RULES", "CALL ADMIN"], channel);
                 }
             }
             else
@@ -278,7 +295,6 @@ default
                     {
                         llOwnerSay("You're at 0 HP, on your next initiative you must post out. You will leave combat once you close this menu.");
                     }
-                    
                 }
                 else if(button == 5)
                 {
@@ -303,7 +319,7 @@ default
             string message = name + " rolled a " + (string)num + " (" + (string)(num+level) + " if you include their level) for " + m + ".";
             trustedSay("Crystalgate Dice", message);
             llSay(CG_IPC_CHANNEL, "target=client\nmode=trusted-say\nobject-name=Crystalgate Dice\nmessage=" + message);
-            llSay(CG_IPC_CHANNEL, "target=server\nmode=webhook\nname=Crystalgate Dice\nmessage=" + message);
+            llRegionSay(CG_IPC_CHANNEL, "target=server\nmode=webhook\nname=Crystalgate Dice\nmessage=" + message);
         }
         else if(mode == "choosescan")
         {
@@ -367,6 +383,21 @@ default
             else
             {
                 llRegionSayTo((key)llList2String(results, choice), CG_IPC_CHANNEL, "target=client\nmode=try-attack\nattacker=" + name + "\ntype=" + attackType + "\nstrength=" + specialty + "\nlevel=" + (string)level);
+            }
+        }
+        else if(mode == "gethelp")
+        {
+            if(m == "GET RULES")
+            {
+                llOwnerSay("Fetching you a copy of the rules...");
+                llRegionSay(CG_IPC_CHANNEL, "target=server\nmode=give-rules\nagent-key=" + (string)llGetOwner());
+                llMessageLinked(LINK_THIS, CLIENT_CLOSE_MENUS, "", NULL_KEY);
+            }
+            else
+            {
+                llOwnerSay("Paging admins...");
+                llRegionSay(CG_IPC_CHANNEL, "target=server\nmode=page-staff\nagent-key=" + (string)llGetOwner());
+                llMessageLinked(LINK_THIS, CLIENT_CLOSE_MENUS, "", NULL_KEY);
             }
         }
     }
